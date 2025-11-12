@@ -3,23 +3,32 @@ import app from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/database";
 import "firebase/compat/storage";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import {
+  FIREBASE_API_KEY,
+  FIREBASE_AUTH_DOMAIN,
+  FIREBASE_DATABASE_URL,
+  FIREBASE_PROJECT_ID,
+  FIREBASE_STORAGE_BUCKET,
+  FIREBASE_MESSAGING_SENDER_ID,
+  FIREBASE_APP_ID,
+  FIREBASE_MEASUREMENT_ID,
+} from '@env';
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Configuration is loaded from environment variables (.env file)
+// See FIREBASE_SETUP.md for setup instructions
 const firebaseConfig = {
-  apiKey: "AIzaSyB4yyMf21Mdm7FzIXCySC73lwgd8FhYLCs",
-  authDomain: "reactnativeproject-6a009.firebaseapp.com",
-  databaseURL: "https://reactnativeproject-6a009-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "reactnativeproject-6a009",
-  storageBucket: "reactnativeproject-6a009.appspot.com",
-  messagingSenderId: "718707030818",
-  appId: "1:718707030818:web:1006eebe6339f3582b037b",
-  measurementId: "G-ZB3TEZ3RVK"
+  apiKey: FIREBASE_API_KEY,
+  authDomain: FIREBASE_AUTH_DOMAIN,
+  databaseURL: FIREBASE_DATABASE_URL,
+  projectId: FIREBASE_PROJECT_ID,
+  storageBucket: FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
+  appId: FIREBASE_APP_ID,
+  measurementId: FIREBASE_MEASUREMENT_ID,
 };
+
 // Initialize Firebase
 const firebase = app.initializeApp(firebaseConfig);
-//const analytics = getAnalytics(app);
+
 export default firebase;

@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import firebase from "../config";
 import {
+  ActivityIndicator,
   Alert,
   BackHandler,
   Button,
@@ -13,52 +14,124 @@ import {
   View,
 } from "react-native";
 
-const userCredentials = () => {
-  Alert.alert();
-};
-
 const auth = firebase.auth();
 
 export default function Auth({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({ email: "", password: "" });
+
+  const validateInputs = () => {
+    let valid = true;
+    const newErrors = { email: "", password: "" };
+
+    // Email validation
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Email is invalid";
+      valid = false;
+    }
+
+    // Password validation
+    if (!password) {
+      newErrors.password = "Password is required";
+      valid = false;
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
   const signIn = () => {
-    console.log("email:", email, " password:", password);
+    if (!validateInputs()) {
+      return;
+    }
+
+    setLoading(true);
     auth
       .signInWithEmailAndPassword(email, password)
-      .then((res) => navigation.navigate("home"))
-      .catch((err) => alert(err));
+      .then((res) => {
+        setLoading(false);
+        navigation.navigate("home");
+      })
+      .catch((err) => {
+        setLoading(false);
+        let errorMessage = "An error occurred during sign in";
+
+        if (err.code === "auth/invalid-email") {
+          errorMessage = "Invalid email address";
+        } else if (err.code === "auth/user-not-found") {
+          errorMessage = "No account found with this email";
+        } else if (err.code === "auth/wrong-password") {
+          errorMessage = "Incorrect password";
+        } else if (err.code === "auth/too-many-requests") {
+          errorMessage = "Too many failed attempts. Please try again later";
+        }
+
+        Alert.alert("Sign In Failed", errorMessage);
+      });
   };
   return (
     <View style={styles.container}>
       <View style={styles.auth_container}>
-        <Text style={{ color: "white", fontSize: 30 }}>Authentification</Text>
+        <Text style={{ color: "white", fontSize: 30 }}>Authentication</Text>
+
         <TextInput
-          style={styles.text_input}
+          style={[styles.text_input, errors.email ? styles.input_error : null]}
           placeholder="Email"
-          placeholderTextColor="#FFF"
-          onChangeText={(text) => setEmail(text)}
+          placeholderTextColor="#AAA"
+          value={email}
+          onChangeText={(text) => {
+            setEmail(text);
+            setErrors({ ...errors, email: "" });
+          }}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoComplete="email"
         />
+        {errors.email ? <Text style={styles.error_text}>{errors.email}</Text> : null}
+
         <TextInput
-          style={styles.text_input}
+          style={[styles.text_input, errors.password ? styles.input_error : null]}
           placeholder="Password"
-          placeholderTextColor="#FFF"
-          onChangeText={(text) => setPassword(text)}
+          placeholderTextColor="#AAA"
+          value={password}
+          onChangeText={(text) => {
+            setPassword(text);
+            setErrors({ ...errors, password: "" });
+          }}
+          secureTextEntry={true}
+          autoCapitalize="none"
+          autoComplete="password"
         />
-        <View style={{ flex: 0, flexDirection: "row", gap: 10 }}>
-          <Button title="Submit" onPress={signIn} />
-          <Button title="Cancel" onPress={() => BackHandler.exitApp()} />
-        </View>
+        {errors.password ? <Text style={styles.error_text}>{errors.password}</Text> : null}
+
+        {loading ? (
+          <ActivityIndicator size="large" color="#007AFF" style={{ marginTop: 20 }} />
+        ) : (
+          <View style={{ flex: 0, flexDirection: "row", gap: 10, marginTop: 10 }}>
+            <Button title="Sign In" onPress={signIn} disabled={loading} />
+            <Button title="Cancel" onPress={() => BackHandler.exitApp()} disabled={loading} />
+          </View>
+        )}
+
         <Text
           style={{
             color: "white",
             alignSelf: "flex-end",
             paddingRight: 5,
             marginTop: 20,
+            textDecorationLine: "underline",
           }}
-          onPress={() => navigation.navigate("newUser")}
+          onPress={() => !loading && navigation.navigate("newUser")}
         >
-          Create new user
+          Create new account
         </Text>
       </View>
       <StatusBar style="auto" />
@@ -77,7 +150,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#0003",
     width: "90%",
     paddingTop: 50,
-    height: 350,
+    paddingBottom: 30,
+    minHeight: 400,
     flex: 0,
     gap: 10,
     alignItems: "center",
@@ -89,10 +163,21 @@ const styles = StyleSheet.create({
     borderColor: "gray",
     borderWidth: 1,
     borderStyle: "solid",
-    width: "60%",
+    width: "80%",
     borderRadius: 10,
-    padding: 10,
-    color: "white",
-    textAlign: "center",
+    padding: 12,
+    color: "#333",
+    fontSize: 16,
+  },
+  input_error: {
+    borderColor: "red",
+    borderWidth: 2,
+  },
+  error_text: {
+    color: "#ff6b6b",
+    fontSize: 12,
+    alignSelf: "flex-start",
+    marginLeft: "10%",
+    marginTop: -5,
   },
 });
