@@ -11,7 +11,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="home"
+        initialRouteName="auth"
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="auth" component={Auth} />
