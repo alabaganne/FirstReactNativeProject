@@ -1,4 +1,4 @@
-# FirstReactNativeProject
+# Expo Group Chat
 
 A full-featured mobile application built with React Native and Expo, showcasing user authentication, profile management, real-time group chat, and Firebase integration.
 
@@ -38,7 +38,7 @@ A full-featured mobile application built with React Native and Expo, showcasing 
 
 ## Screenshots
 
-_Add screenshots here when available_
+Run the Expo app locally to explore authentication, profiles and group messaging.
 
 ## Tech Stack
 
